@@ -78,18 +78,24 @@
   </footer>
 
   <script>
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwZKn2WBSW1BB5MjgF72UJXD4dyvGeRaQNkonfzRnBonRoWpYD4PuJqB6Acv9IlGcd9AQ/exec'; // Replace with your actual web app URL
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxhifIi-xmiU7lFFNpaoVaPQf0SVPmWwy8bazT8IghsyPQTZVIkh48sIN6HL2pkEaEezQ/exec'; // Replace with your actual web app URL
 
 function fetchBadges() {
-    fetch(scriptUrl + '?action=get')
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'success') {
-          populateTable(data.badges);
-        } else {
-          console.error('Failed to fetch badges:', data.message);
-        }
-      })
+  fetch(scriptUrl + '?action=get', {
+      mode:"cors",
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => console.log(response))
+      // .then(response => response.json())
+      // .then(data => {
+      //   if (data.status === 'success') {
+      //     populateTable(data.badges);
+      //   } else {
+      //     console.error('Failed to fetch badges:', data.message);
+      //   }
+      // })
       .catch(error => console.error('Error:', error));
   }
 
@@ -132,7 +138,7 @@ function fetchBadges() {
     };
 
     fetch(scriptUrl + '?action=add', {
-      method: 'POST',
+      mode:"cors",
       body: JSON.stringify(newBadge),
       headers: {
         'Content-Type': 'application/json'
