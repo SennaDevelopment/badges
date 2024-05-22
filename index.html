@@ -22,7 +22,6 @@
   th { background-color: #333; color: white; }
   tr:nth-child(even) { background-color: #f2f2f2; }
   footer { padding: 20px; margin-top: 20px; color: #ffffff; background-color: #333; text-align: center; }
-  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -33,13 +32,28 @@
       </div>
       <nav>
         <ul>
-          <li class="current"><a href="index.html">Home</a></li>
+          <li class="current"><a href="#">Home</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
   <section class="container">
+    <!-- Form for adding new badge -->
+    <form id="addBadgeForm">
+      <label for="imageUrl">Image URL:</label><br>
+      <input type="text" id="imageUrl" name="imageUrl" required><br>
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" name="name" required><br>
+      <label for="description">Description:</label><br>
+      <textarea id="description" name="description" required></textarea><br>
+      <label for="dateOfAcquisition">Date of Acquisition:</label><br>
+      <input type="date" id="dateOfAcquisition" name="dateOfAcquisition" required><br>
+      <label for="dateOfRemoval">Date of Removal:</label><br>
+      <input type="date" id="dateOfRemoval" name="dateOfRemoval"><br>
+      <button type="submit">Add Badge</button>
+    </form>
+
     <table id="badgesTable">
       <thead>
         <tr>
@@ -61,41 +75,59 @@
   </footer>
 
   <script>
-    // Google Spreadsheet URL
-    const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1ZtO1UCeDJ6osxK_x7ioYGAfqdBZlWJlsDI2lOLASctA';
-
-    // Fetch data from Google Spreadsheet
-    fetch(spreadsheetUrl)
-      .then(res => console.log(res))
-      .then(response => response.text())
-      .then(data => {
-        const rows = data.split(/\r?\n/).map(row => row.split(','));
-        const headers = rows[0];
-        const badges = rows.slice(1).map(row => {
-          const badge = {};
-          headers.forEach((header, index) => {
-            badge[header] = row[index];
-          });
-          return badge;
+    const replurl = "https://09a4e5b0-9f8d-4c93-a150-f1636d6faa76-00-k4qc98jc7aoz.janeway.replit.dev";
+    // Function to handle form submission
+    document.getElementById('addBadgeForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      try {
+        const response = await fetch(replurl+'/badges', {
+          method: 'POST',
+          body: formData
         });
-        populateTable(badges);
-      })
-      .catch(error => console.error('Error:', error));
+        const data = await response.json();
+        if (data.status === 'success') {
+          fetchBadges(); // Refresh badges after adding new one
+          form.reset(); // Clear form fields after successful submission
+        } else {
+          console.error('Failed to add badge:', data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+    // Fetch badges data from the backend
+    async function fetchBadges() {
+      try {
+        const response = await fetch(replurl+'/badges');
+        const data = await response.json();
+        if (data.status === 'success') {
+          populateTable(data.badges);
+        } else {
+          console.error('Failed to fetch badges:', data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
 
+    // Populate the table with badges data
     function populateTable(badges) {
-      const tableBody = document.querySelector('#badgesTable tbody');
-      tableBody.innerHTML = '';
+      const tableBody = document.getElementById('badgesTable').getElementsByTagName('tbody')[0];
+      tableBody.innerHTML = ''; // Clear existing rows
       badges.forEach(badge => {
-        const row = tableBody.insertRow();
-        row.innerHTML = `
-          <td><img src="${badge['Image']}" alt="Badge Image" style="width:50px;height:50px;"></td>
-          <td>${badge['Name']}</td>
-          <td>${badge['Description']}</td>
-          <td>${badge['Date of Acquisition']}</td>
-          <td>${badge['Date of Removal']}</td>
-        `;
+        let row = tableBody.insertRow();
+        row.insertCell(0).innerHTML = `<img src="${badge.imageUrl}" alt="Badge Image" style="width:50px;height:50px;">`;
+        row.insertCell(1).textContent = badge.name;
+        row.insertCell(2).textContent = badge.description;
+        row.insertCell(3).textContent = badge.dateOfAcquisition;
+        row.insertCell(4).textContent = badge.dateOfRemoval;
       });
     }
-</script>
+
+    // Call fetchBadges on page load
+    window.onload = fetchBadges;
+  </script>
 </body>
 </html>
