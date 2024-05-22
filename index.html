@@ -22,6 +22,7 @@
   th { background-color: #333; color: white; }
   tr:nth-child(even) { background-color: #f2f2f2; }
   footer { padding: 20px; margin-top: 20px; color: #ffffff; background-color: #333; text-align: center; }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -53,7 +54,23 @@
         <!-- Table rows will be added here dynamically -->
       </tbody>
     </table>
-    <button onclick="addBadge()">Add New Badge</button>
+    <button onclick="showAddBadgeForm()">Add New Badge</button>
+    <div id="addBadgeForm" class="hidden">
+      <h3>Add New Badge</h3>
+      <label for="imageUrl">Image URL:</label>
+      <input type="text" id="imageUrl"><br>
+      <label for="name">Name:</label>
+      <input type="text" id="name"><br>
+      <label for="description">Description:</label>
+      <input type="text" id="description"><br>
+      <label for="dateOfAcquisition">Date of Acquisition:</label>
+      <input type="date" id="dateOfAcquisition"><br>
+      <label for="dateOfRemoval">Date of Removal:</label>
+      <input type="date" id="dateOfRemoval"><br>
+      <label for="password">Password:</label>
+      <input type="password" id="password"><br>
+      <button onclick="addBadge()">Submit</button>
+    </div>
   </section>
 
   <footer>
@@ -61,9 +78,8 @@
   </footer>
 
   <script>
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxkYalgNEhOLEoJfjER70dqKIP5tjqjKjdlGKU6u1EZ1Hv_aEGRDil82wwSDcp5INlWYw/exec'; // Replace with your actual web app URL
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzolo5UUHYRjswNFvm5SFe-91Q07mgDC4B2klWv9EK2PWbc5n-GCidcnxKu64LJIKT50g/exec'; // Replace with your actual web app URL
 
-    // Fetch badges data from the Google Sheet
     function fetchBadges() {
       fetch(scriptUrl + '?action=get')
         .then(response => response.json())
@@ -77,12 +93,12 @@
         .catch(error => console.error('Error:', error));
     }
 
-    // Populate the table with badges data
     function populateTable(badges) {
       const tableBody = document.getElementById('badgesTable').getElementsByTagName('tbody')[0];
+      tableBody.innerHTML = ''; // Clear existing rows
       badges.forEach(badge => {
         let row = tableBody.insertRow();
-        row.insertCell(0).innerHTML = '<img src="' + badge.imageUrl + '" alt="Badge Image" style="width:50px;height:50px;">';
+        row.insertCell(0).innerHTML = `<img src="${badge.imageUrl}" alt="Badge Image" style="width:50px;height:50px;">`;
         row.insertCell(1).textContent = badge.name;
         row.insertCell(2).textContent = badge.description;
         row.insertCell(3).textContent = badge.dateOfAcquisition;
@@ -90,7 +106,50 @@
       });
     }
 
-    // Call fetchBadges on page load
+    function showAddBadgeForm() {
+      document.getElementById('addBadgeForm').classList.remove('hidden');
+    }
+
+    function addBadge() {
+      const imageUrl = document.getElementById('imageUrl').value;
+      const name = document.getElementById('name').value;
+      const description = document.getElementById('description').value;
+      const dateOfAcquisition = document.getElementById('dateOfAcquisition').value;
+      const dateOfRemoval = document.getElementById('dateOfRemoval').value;
+      const password = document.getElementById('password').value;
+
+      if (password !== 'pass') { // Replace 'your_password' with your actual password
+        alert('Incorrect password');
+        return;
+      }
+
+      const newBadge = {
+        imageUrl,
+        name,
+        description,
+        dateOfAcquisition,
+        dateOfRemoval
+      };
+
+      fetch(scriptUrl + '?action=add', {
+        method: 'POST',
+        body: JSON.stringify(newBadge),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert('Badge added successfully');
+          fetchBadges();
+        } else {
+          alert('Failed to add badge:', data.message);
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
     window.onload = fetchBadges;
   </script>
 </body>
