@@ -78,7 +78,7 @@
   </footer>
 
   <script>
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzolo5UUHYRjswNFvm5SFe-91Q07mgDC4B2klWv9EK2PWbc5n-GCidcnxKu64LJIKT50g/exec'; // Replace with your actual web app URL
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxXitjWLO3arrunLvGpHuGGrVdudBdOT93y2HSaDBzbehxfEyimfZCxnEPC8Mh5mi_lLQ/exec'; // Replace with your actual web app URL
 
     function fetchBadges() {
       fetch(scriptUrl + '?action=get')
@@ -118,7 +118,7 @@
       const dateOfRemoval = document.getElementById('dateOfRemoval').value;
       const password = document.getElementById('password').value;
 
-      if (password !== 'pass') { // Replace 'your_password' with your actual password
+      if (password !== 'your_password') { // Replace 'your_password' with your actual password
         alert('Incorrect password');
         return;
       }
